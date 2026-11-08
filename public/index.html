@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Novakraft - Transcritor de Reuniões</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 40px; max-width: 520px; margin: auto; background: #f7f9fc; color: #222; }
+        h2 { color: #0056b3; margin-bottom: 8px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-weight: bold; margin-bottom: 6px; }
+        input[type="text"], input[type="file"], input[type="email"] { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+        button { background: #0056b3; color: white; border: none; padding: 12px 20px; cursor: pointer; width: 100%; border-radius: 6px; font-size: 16px; }
+        button:hover { background: #004494; }
+        #status { margin-top: 20px; padding: 12px; border-radius: 6px; background: #eef; }
+    </style>
+</head>
+<body>
+    <h2>Processador de Atas - Novakraft</h2>
+    <p>Envie o áudio da reunião. O sistema gera a ata, extrai planos de ação por departamento e envia o PDF.</p>
+    <form id="uploadForm">
+        <div class="form-group">
+            <label>Áudio da Reunião (MP3 / WAV / M4A):</label>
+            <input type="file" id="audio" name="audio" accept="audio/*" required>
+        </div>
+        <div class="form-group">
+            <label>E-mail do Departamento Responsável:</label>
+            <input type="email" id="email" name="email" placeholder="departamento@novakraft.com" required>
+        </div>
+        <button type="submit">Gerar Ata e Enviar Plano de Ação</button>
+    </form>
+    <p id="status"></p>
+
+    <script>
+        document.getElementById('uploadForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const statusLabel = document.getElementById('status');
+            statusLabel.innerText = "Enviando e processando... isso pode demorar conforme o tamanho do áudio.";
+            
+            const formData = new FormData(e.target);
+            try {
+                const response = await fetch('/api/processar', { method: 'POST', body: formData });
+                const result = await response.json();
+                statusLabel.innerText = result.mensagem || result.erro || "Processamento concluído.";
+            } catch (err) {
+                statusLabel.innerText = "Erro ao conectar com a API. Verifique o deploy e as variáveis de ambiente.";
+            }
+        };
+    </script>
+</body>
+</html>
